@@ -10,11 +10,12 @@ public class SourceConfig {
     private String functionName;
     private String returnType;
     private boolean enable = false;
-    private String fakeReturnJSON;
+    private int mode; //0->null, 1->default, 2->modify
+    private String modifyData;
 
     public Object generateFakeReturnObject(){
         try {
-            return JSON.parseObject(fakeReturnJSON,Class.forName(className));
+            return JSON.parseObject(modifyData, Class.forName(className));
         } catch (ClassNotFoundException e) {
             return null;
         }
