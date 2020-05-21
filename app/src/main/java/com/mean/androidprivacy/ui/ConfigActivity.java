@@ -1,5 +1,6 @@
-package com.mean.androidprivacy;
+package com.mean.androidprivacy.ui;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -18,7 +19,9 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.mean.androidprivacy.adapter.ResultRVAdapter;
+import com.mean.androidprivacy.App;
+import com.mean.androidprivacy.R;
+import com.mean.androidprivacy.adapter.MethodRVAdapter;
 import com.mean.androidprivacy.bean.AppConfig;
 import com.mean.androidprivacy.bean.DataFlowResults;
 import com.mean.androidprivacy.bean.Result;
@@ -30,15 +33,13 @@ import com.mean.androidprivacy.utils.AppConfigDBUtil;
 import com.mean.androidprivacy.utils.AppInfoUtil;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class ConfigActivity extends AppCompatActivity {
-    public static final String TAG = "PermissionActivity";
-    public static final int REQUESTCODE_CONFIG = 0;
+    public static final String TAG = "ConfigActivity";
+
     private ImageView iv_icon;
     private TextView tv_name;
     private Switch sw_enable;
@@ -49,6 +50,34 @@ public class ConfigActivity extends AppCompatActivity {
     private String appPackageName;
 
     private AppConfig appConfig;
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if(requestCode == MethodRVAdapter.REQUEST_CODE_METHOD_CONFIG){
+            if(resultCode == RESULT_CANCELED && data!=null){
+                int methodPosInSourceConfigs = data.getIntExtra("methodPosInSourceConfigs",-1);
+
+                if(methodPosInSourceConfigs>=0 &&  methodPosInSourceConfigs<appConfig.getSourceConfigs().size()){
+                    appConfig.getSourceConfigs().get(methodPosInSourceConfigs).setEnable(false);
+                    ((MethodRVAdapter)rv_permission_list.getAdapter()).updateData(appConfig);
+                }
+            }else if(resultCode == RESULT_OK && data!=null){
+                int mode = data.getIntExtra("mode",-1);
+                String modifyString = data.getStringExtra("modifyString");
+                int methodPosInSourceConfigs = data.getIntExtra("methodPosInSourceConfigs",-1);
+
+                if(methodPosInSourceConfigs>=0 &&  methodPosInSourceConfigs<appConfig.getSourceConfigs().size()){
+                    SourceConfig sourceConfig = appConfig.getSourceConfigs().get(methodPosInSourceConfigs);
+                    sourceConfig.setEnable(true);
+                    sourceConfig.setMode(mode);
+                    sourceConfig.setModifyData(modifyString);
+                    AppConfigDBUtil.insert(appConfig);
+                }
+            }
+        }else if(requestCode == MethodRVAdapter.REQUEST_CODE_METHOD_CONFIG && data!=null){
+
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,17 +110,17 @@ public class ConfigActivity extends AppCompatActivity {
         }
         tv_name.setText(appConfig.getAppName());
         sw_enable.setChecked(appConfig.getIsEnabled());
-        sw_enable.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                appConfig.setIsEnabled(isChecked);
-                Intent intent = new Intent();
-                int appListPos = getIntent().getIntExtra("appListPos",-1);
-                intent.putExtra("appListPos",appListPos);
-                intent.putExtra("isEnabled",isChecked);
-                setResult(RESULT_OK,intent);
-                AppConfigDBUtil.insert(appConfig);
-            }
+        sw_enable.setText(appConfig.getIsEnabled()?"已启用":"未启用");
+        sw_enable.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            buttonView.setText(isChecked?"已启用":"未启用");
+
+            appConfig.setIsEnabled(isChecked);
+            Intent intent = new Intent();
+            int appListPos = getIntent().getIntExtra("appListPos",-1);
+            intent.putExtra("appListPos",appListPos);
+            intent.putExtra("isEnabled",isChecked);
+            setResult(RESULT_OK,intent);
+            AppConfigDBUtil.insert(appConfig);
         });
 
         try{
@@ -104,7 +133,7 @@ public class ConfigActivity extends AppCompatActivity {
             tv_none_hint.setVisibility(View.GONE);
         }
         rv_permission_list.setLayoutManager(new LinearLayoutManager(ConfigActivity.this));
-        rv_permission_list.setAdapter(new ResultRVAdapter(appConfig));
+        rv_permission_list.setAdapter(new MethodRVAdapter(appConfig));
 
         fab_restore.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,8 +145,6 @@ public class ConfigActivity extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 AppConfigDBUtil.delete(appConfig); //直接从数据库删除
-                                appConfig.setDataFlowResults(null);
-                                sw_enable.setChecked(false);
                                 // 从服务器更新该应用配置
                                 String xml = RemoteServer.getInstance().getResult("5E7D6134D494CAC48A8A1E34BB356577");
                                 DataFlowResultsConverter converter = new DataFlowResultsConverter();
@@ -151,8 +178,8 @@ public class ConfigActivity extends AppCompatActivity {
                                 appConfig.setSourceConfigs(sourceConfigs);
                                 AppConfigDBUtil.insert(appConfig);
 
-                                ((ResultRVAdapter)rv_permission_list.getAdapter()).updateData();
-                                rv_permission_list.getAdapter().notifyDataSetChanged();
+                                ((MethodRVAdapter)rv_permission_list.getAdapter()).updateData(appConfig);
+                                sw_enable.setChecked(false);
                                 dialog.dismiss();
                             }
                         })
@@ -166,6 +193,8 @@ public class ConfigActivity extends AppCompatActivity {
                 dialog.show();
             }
         });
+
+
 
 
     }

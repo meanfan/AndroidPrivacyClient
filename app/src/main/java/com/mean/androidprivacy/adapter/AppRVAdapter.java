@@ -10,8 +10,8 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.mean.androidprivacy.MainActivity;
-import com.mean.androidprivacy.ConfigActivity;
+import com.mean.androidprivacy.ui.MainActivity;
+import com.mean.androidprivacy.ui.ConfigActivity;
 import com.mean.androidprivacy.R;
 import com.mean.androidprivacy.bean.AppConfig;
 import com.mean.androidprivacy.utils.AppInfoUtil;
@@ -68,7 +68,7 @@ public class AppRVAdapter extends RecyclerView.Adapter<AppRVAdapter.VH> {
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), ConfigActivity.class);
                 intent.putExtra("appPackageName",appPackageName);
-                ((MainActivity)v.getContext()).startActivityForResult(intent,MainActivity.REQUESTCODE_CONFIG);
+                ((MainActivity)v.getContext()).startActivityForResult(intent,MainActivity.REQUEST_CODE_CONFIG);
             }
         });
     }

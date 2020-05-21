@@ -1,10 +1,12 @@
-package com.mean.androidprivacy;
+package com.mean.androidprivacy.ui;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
-public class ConfigDetailActivity extends AppCompatActivity {
+import com.mean.androidprivacy.R;
+
+public class MethodDetailActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

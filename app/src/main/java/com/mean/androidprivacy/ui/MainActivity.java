@@ -1,10 +1,12 @@
-package com.mean.androidprivacy;
+package com.mean.androidprivacy.ui;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import com.crossbowffs.remotepreferences.RemotePreferences;
+import com.mean.androidprivacy.App;
+import com.mean.androidprivacy.R;
 import com.mean.androidprivacy.adapter.AppRVAdapter;
 import com.mean.androidprivacy.utils.PreferenceUtils;
 
@@ -24,7 +26,7 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = "MainActivity";
-    public static final int REQUESTCODE_CONFIG = 0;
+    public static final int REQUEST_CODE_CONFIG = 0;
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView recyclerView;
 
@@ -134,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if(requestCode == REQUESTCODE_CONFIG){
+        if(requestCode == REQUEST_CODE_CONFIG){
             if(resultCode == RESULT_OK){
                 boolean isEnabled = data.getBooleanExtra("isEnabled",false);
                 int pos = data.getIntExtra("appListPos",-1);
