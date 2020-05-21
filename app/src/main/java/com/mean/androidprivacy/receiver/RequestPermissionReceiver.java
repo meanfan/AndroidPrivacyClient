@@ -12,7 +12,7 @@ import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 
-import com.mean.androidprivacy.ConfigDetailActivity;
+import com.mean.androidprivacy.ui.MethodDetailActivity;
 import com.mean.androidprivacy.R;
 import com.mean.androidprivacy.utils.AppInfoUtil;
 
@@ -42,7 +42,7 @@ public class RequestPermissionReceiver extends BroadcastReceiver {
     private void showNotification(Intent intent)
     {
         NotificationManager manager = (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
-        Intent intent1 = new Intent(context, ConfigDetailActivity.class);  // 跳到PermissionModeActivity处理
+        Intent intent1 = new Intent(context, MethodDetailActivity.class);  // 跳到PermissionModeActivity处理
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent1, 0);
         if(Build.VERSION.SDK_INT >= 26)    //SDK 26+ 通知渠道
         {
