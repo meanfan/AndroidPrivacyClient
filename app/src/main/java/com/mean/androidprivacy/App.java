@@ -10,6 +10,7 @@ import com.mean.androidprivacy.bean.AppConfig;
 import com.mean.androidprivacy.bean.DaoMaster;
 import com.mean.androidprivacy.bean.DaoSession;
 import com.mean.androidprivacy.utils.AppInfoUtil;
+import com.mean.androidprivacy.utils.GreenDaoContext;
 
 import java.io.File;
 import java.util.Map;
@@ -27,7 +28,7 @@ public class App extends Application {
     }
 
     private void initGreenDAO(){
-        DaoMaster.DevOpenHelper helper= new DaoMaster.DevOpenHelper(this,"appConfigs.db",null );
+        DaoMaster.DevOpenHelper helper= new DaoMaster.DevOpenHelper(new GreenDaoContext(this), "appConfigs.db", null );
         //DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, "appConfigs-db", null);
         SQLiteDatabase db = helper.getWritableDatabase();
         DaoMaster daoMaster = new DaoMaster(db);
