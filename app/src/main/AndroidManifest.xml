@@ -21,10 +21,6 @@
             android:theme="@style/ActivityDialogStyle"></activity>
         <activity android:name=".ui.MethodDetailActivity" />
 
-        <provider
-            android:name=".ModulePreferenceProvider"
-            android:authorities="com.mean.androidprivacy.pref.module"
-            android:exported="true" />
 
         <activity android:name=".ui.ConfigActivity" />
         <activity
@@ -43,20 +39,24 @@
             android:value="true" />
         <meta-data
             android:name="xposeddescription"
-            android:value="My Permissons!" />
+            android:value="隐私保护" />
         <meta-data
             android:name="xposedminversion"
             android:value="82" />
 
+<!--        <provider-->
+<!--            android:name="androidx.core.content.FileProvider"-->
+<!--            android:authorities="com.mean.androidprivacy.fileProvider"-->
+<!--            android:exported="false"-->
+<!--            android:grantUriPermissions="true">-->
+<!--            <meta-data-->
+<!--                android:name="android.support.FILE_PROVIDER_PATHS"-->
+<!--                android:resource="@xml/file_paths" />-->
+<!--        </provider>-->
         <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="com.mean.androidprivacy.fileProvider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths" />
-        </provider>
+            android:authorities="com.mean.androidprivacy.dbProvider"
+            android:name=".DBContentProvider"
+            android:exported="true"/>
     </application>
 
 </manifest>

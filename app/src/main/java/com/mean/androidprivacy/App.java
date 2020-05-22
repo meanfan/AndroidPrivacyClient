@@ -27,6 +27,7 @@ public class App extends Application {
         initGreenDAO();
     }
 
+
     private void initGreenDAO(){
         DaoMaster.DevOpenHelper helper= new DaoMaster.DevOpenHelper(new GreenDaoContext(this), "appConfigs.db", null );
         //DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, "appConfigs-db", null);
