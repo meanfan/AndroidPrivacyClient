@@ -17,6 +17,7 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mean.androidprivacy.App;
@@ -31,21 +32,23 @@ import com.mean.androidprivacy.converter.DataFlowResultsConverter;
 import com.mean.androidprivacy.server.RemoteServer;
 import com.mean.androidprivacy.utils.AppConfigDBUtil;
 import com.mean.androidprivacy.utils.AppInfoUtil;
+import com.mean.androidprivacy.utils.Md5CalcUtil;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class ConfigActivity extends AppCompatActivity {
+public class ConfigActivity extends AppCompatActivity implements AnalyzeResultCallBack{
     public static final String TAG = "ConfigActivity";
 
     private ImageView iv_icon;
     private TextView tv_name;
     private Switch sw_enable;
     private RecyclerView rv_permission_list;
-    private TextView tv_none_hint;
+    private TextView tv_none_hint,tv_wait_hint;
     private FloatingActionButton fab_restore;
+    AlertDialog dialog;
 
     private String appPackageName;
 
@@ -88,8 +91,9 @@ public class ConfigActivity extends AppCompatActivity {
         sw_enable = findViewById(R.id.sw_enable);
         rv_permission_list = findViewById(R.id.rv_permission_list);
         tv_none_hint = findViewById(R.id.tv_none_hint);
+        tv_wait_hint = findViewById(R.id.tv_wait_hint);
         fab_restore = findViewById(R.id.fab_restore);
-        StrictMode.ThreadPolicy policy=new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
         appPackageName = (String) getIntent().getSerializableExtra("appPackageName");
@@ -124,78 +128,112 @@ public class ConfigActivity extends AppCompatActivity {
         });
 
         try{
-            if(appConfig.getDataFlowResults().getResults().getResults().size() == 0){
+            if(appConfig.getDataFlowResults().getImplicitResults().size() == 0){
                 rv_permission_list.setVisibility(View.GONE);
                 tv_none_hint.setVisibility(View.VISIBLE);
             }
         }catch (NullPointerException e){
-            rv_permission_list.setVisibility(View.VISIBLE);
-            tv_none_hint.setVisibility(View.GONE);
+            rv_permission_list.setVisibility(View.GONE);
+            tv_none_hint.setVisibility(View.VISIBLE);
         }
         rv_permission_list.setLayoutManager(new LinearLayoutManager(ConfigActivity.this));
         rv_permission_list.setAdapter(new MethodRVAdapter(appConfig));
+        AlertDialog.Builder builder = new AlertDialog.Builder(ConfigActivity.this);
+        fab_restore.setOnClickListener(v -> {
+            builder.setTitle("提示")
+                    .setMessage("确定从服务器更新该应用所有配置？")
+                    .setPositiveButton("确定", (dialog, which) -> {
+                        rv_permission_list.setVisibility(View.GONE);
+                        tv_none_hint.setVisibility(View.GONE);
+                        tv_wait_hint.setVisibility(View.VISIBLE);
+                        AppConfigDBUtil.delete(appConfig); //直接从数据库删除
+                        // 从服务器更新该应用配置
+                        String ApkMD5 = Md5CalcUtil.calcMD5(ConfigActivity.this,AppInfoUtil.getApkDir(ConfigActivity.this,appConfig.getAppPackageName()));
+                        RemoteServer.getInstance().getResult(ConfigActivity.this,ApkMD5);
 
-        fab_restore.setOnClickListener(new View.OnClickListener() {
+                    })
+                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+            dialog = builder.create();
+            dialog.show();
+        });
+    }
+
+    @Override
+    public void handleMD5Result(String xml) {
+        if(xml==null || xml.length()==0){
+            RemoteServer.getInstance().getResult(this,AppInfoUtil.getApkFile(ConfigActivity.this,appConfig.getAppPackageName()));
+        }else {
+            handleAnalyzeResult(xml);
+        }
+    }
+
+    @Override
+    public void handleAnalyzeResult(String xml) {
+        if(xml==null || xml.length()==0){
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(ConfigActivity.this,"获取配置失败",Toast.LENGTH_SHORT).show();
+                }
+            });
+            return;
+        }
+        DataFlowResultsConverter converter = new DataFlowResultsConverter();
+        DataFlowResults dataFlowResults = converter.convertToEntityProperty(xml);
+        appConfig.setDataFlowResults(dataFlowResults);
+        List<SourceConfig> sourceConfigs = new ArrayList<>();
+        Set<String> sourceConfigSet = new HashSet<>();
+        for(Result result:dataFlowResults.getImplicitResults()){
+            for(Source source:result.getImplicitSources()){
+                String statement = source.getStatement();
+                String classAndFunction = statement.substring(statement.indexOf('<')+1,statement.indexOf('>'));
+                String[] classAndFunctionArray = classAndFunction.split(":");
+                String className = classAndFunctionArray[0].trim();
+                String functionName = classAndFunctionArray[1].trim().split(" ")[1].trim();
+                String returnType = source.getAccessPath().getType();
+                String catSource = String.format("%s;%s;%s",className,functionName,returnType);
+                sourceConfigSet.add(catSource);
+            }
+        }
+        for(String sourceConfigStr:sourceConfigSet){
+            String[] sourceConfigStrs = sourceConfigStr.split(";");
+            String className = sourceConfigStrs[0];
+            String functionName = sourceConfigStrs[1];
+            String returnType = sourceConfigStrs[2];
+            SourceConfig sourceConfig = new SourceConfig();
+            sourceConfig.setClassName(className);
+            sourceConfig.setFunctionName(functionName);
+            sourceConfig.setReturnType(returnType);
+            sourceConfigs.add(sourceConfig);
+        }
+        appConfig.setSourceConfigs(sourceConfigs);
+        AppConfigDBUtil.insert(appConfig);
+        runOnUiThread(new Runnable() {
             @Override
-            public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(ConfigActivity.this);
-                builder.setTitle("提示")
-                        .setMessage("确定从服务器更新该应用所有配置？")
-                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                AppConfigDBUtil.delete(appConfig); //直接从数据库删除
-                                // 从服务器更新该应用配置
-                                String xml = RemoteServer.getInstance().getResult("5E7D6134D494CAC48A8A1E34BB356577");
-                                DataFlowResultsConverter converter = new DataFlowResultsConverter();
-                                DataFlowResults dataFlowResults = converter.convertToEntityProperty(xml);
-                                appConfig.setDataFlowResults(dataFlowResults);
-                                List<SourceConfig> sourceConfigs = new ArrayList<>();
-                                Set<String> sourceConfigSet = new HashSet<>();
-                                for(Result result:dataFlowResults.getImplicitResults()){
-                                    for(Source source:result.getImplicitSources()){
-                                        String statement = source.getStatement();
-                                        String classAndFunction = statement.substring(statement.indexOf('<')+1,statement.indexOf('>'));
-                                        String[] classAndFunctionArray = classAndFunction.split(":");
-                                        String className = classAndFunctionArray[0].trim();
-                                        String functionName = classAndFunctionArray[1].trim().split(" ")[1].trim();
-                                        String returnType = source.getAccessPath().getType();
-                                        String catSource = String.format("%s;%s;%s",className,functionName,returnType);
-                                        sourceConfigSet.add(catSource);
-                                    }
-                                }
-                                for(String sourceConfigStr:sourceConfigSet){
-                                    String[] sourceConfigStrs = sourceConfigStr.split(";");
-                                    String className = sourceConfigStrs[0];
-                                    String functionName = sourceConfigStrs[1];
-                                    String returnType = sourceConfigStrs[2];
-                                    SourceConfig sourceConfig = new SourceConfig();
-                                    sourceConfig.setClassName(className);
-                                    sourceConfig.setFunctionName(functionName);
-                                    sourceConfig.setReturnType(returnType);
-                                    sourceConfigs.add(sourceConfig);
-                                }
-                                appConfig.setSourceConfigs(sourceConfigs);
-                                AppConfigDBUtil.insert(appConfig);
+            public void run() {
+                if(appConfig.getSourceConfigs().size()>0){
+                    rv_permission_list.setVisibility(View.VISIBLE);
+                    tv_none_hint.setVisibility(View.GONE);
+                    tv_wait_hint.setVisibility(View.GONE);
+                }else {
+                    rv_permission_list.setVisibility(View.GONE);
+                    tv_none_hint.setVisibility(View.VISIBLE);
+                    tv_wait_hint.setVisibility(View.GONE);
+                }
 
-                                ((MethodRVAdapter)rv_permission_list.getAdapter()).updateData(appConfig);
-                                sw_enable.setChecked(false);
-                                dialog.dismiss();
-                            }
-                        })
-                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
-                            }
-                        });
-                AlertDialog dialog = builder.create();
-                dialog.show();
+                ((MethodRVAdapter)rv_permission_list.getAdapter()).updateData(appConfig);
+                sw_enable.setChecked(false);
+                if(dialog!=null && dialog.isShowing()){
+                    dialog.dismiss();
+                }
+                Toast.makeText(ConfigActivity.this,"获取配置成功",Toast.LENGTH_SHORT).show();
             }
         });
-
-
-
 
     }
 }
