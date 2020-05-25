@@ -12,14 +12,13 @@ import com.mean.androidprivacy.bean.AppConfig;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
 public class AppInfoUtil {
     public static final String TAG = "AppUtil";
+
     private static List<PackageInfo> getAllAppInfo(Context context) {
         PackageManager pm = context.getPackageManager();
         List<PackageInfo> packages = pm.getInstalledPackages(PackageManager.GET_PERMISSIONS);
@@ -126,4 +125,19 @@ public class AppInfoUtil {
     }
 
 
+    public static File getApkFile(Context context, String packageName){
+       String apkDir = getApkDir(context,packageName);
+        return new File(apkDir);
+    }
+
+    public static String getApkDir(Context context, String packageName) {
+        String appDir = null;
+        try {
+            //通过包名获取程序源文件路径
+            appDir = context.getPackageManager().getApplicationInfo(packageName, 0).sourceDir;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return appDir;
+    }
 }
