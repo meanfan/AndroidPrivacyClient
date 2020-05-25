@@ -1,8 +1,15 @@
 package com.mean.androidprivacy.server;
 
+import com.mean.androidprivacy.ui.AnalyzeResultCallBack;
+
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -31,46 +38,64 @@ public class RemoteServer {
         return instance;
     }
 
-    public String getResult(String apkMd5){
+    public void getResult(AnalyzeResultCallBack callBack, String apkMd5){
         OkHttpClient client = new OkHttpClient();
         String format = serverURL.concat(GET_RESULT_FORMAT);
         String urlStr = String.format(format,apkMd5);
 
         Request request = new Request.Builder().url(urlStr).build();
-        Response response = null;
-        try {
-            response = client.newCall(request).execute();
-            ResponseBody responseBody = response.body();
-            if(responseBody!=null) {
-                return responseBody.string();
-            }else{
-                return null;
+        Call call = client.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                callBack.handleMD5Result(null);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if(response.isSuccessful()){
+                    callBack.handleMD5Result(response.body().string());
+                }else {
+                    callBack.handleMD5Result(null);
+                }
+            }
+        });
     }
 
-    public String getResult(File apkFile) throws IOException {
-        OkHttpClient client = new OkHttpClient();
+    public void getResult(AnalyzeResultCallBack callBack,File apkFile) {
+        OkHttpClient client = new OkHttpClient.Builder()
+                .retryOnConnectionFailure(false)
+                .connectTimeout(10, TimeUnit.MINUTES)
+                .readTimeout(10, TimeUnit.MINUTES)
+                .writeTimeout(10, TimeUnit.MINUTES)
+                .build();;
         String urlStr = serverURL.concat(POST_APK_FORMAT);
         MediaType.get("application/json; charset=utf-8");
         RequestBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
-                .addFormDataPart("file", apkFile.getName(),
+                .addFormDataPart("uploadApkFile", apkFile.getName(),
                                  RequestBody.create(MediaType.parse("multipart/form-data"), apkFile))
                 .build();
         Request request = new Request.Builder()
                 .url(urlStr)
                 .post(requestBody)
                 .build();
-        try (Response response = client.newCall(request).execute()) {
-            return response.body().string();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+        Call call = client.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                callBack.handleAnalyzeResult(null);
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if(response.isSuccessful()){
+                    callBack.handleAnalyzeResult(response.body().string());
+                }else {
+                    callBack.handleAnalyzeResult(null);
+                }
+            }
+        });
     }
 
 }
