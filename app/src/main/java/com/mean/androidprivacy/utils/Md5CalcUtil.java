@@ -27,7 +27,7 @@ public class Md5CalcUtil {
     public static String calcMD5(Context context, String filePath){
         FileInputStream stream = null;
         try {
-            stream = context.openFileInput(filePath);
+            stream = new FileInputStream(filePath);
             return calcMD5(stream);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
