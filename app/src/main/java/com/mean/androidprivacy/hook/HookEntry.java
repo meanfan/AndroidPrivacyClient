@@ -87,10 +87,14 @@ public class HookEntry implements IXposedHookLoadPackage, IXposedHookZygoteInit 
 
 
                     for(SourceConfig s:appConfig.getSourceConfigs()){
-                        String className = s.getClassName();
+                        if(!s.isEnable()){
+                            continue;
+                        }
+                        XposedBridge.log("returnClassTypeName"+s.getReturnType());
+                        String returnClassTypeName = s.getReturnType();
                         Object returnObj = null;
                         int mode = s.getMode();
-                        if(className.equals("byte")){
+                        if(returnClassTypeName.equals("byte")){
                             switch (mode) {
                                 case 0:
                                 case 1:
@@ -99,7 +103,7 @@ public class HookEntry implements IXposedHookLoadPackage, IXposedHookZygoteInit 
                                 case 2:
                                     returnObj = Byte.parseByte(s.getModifyData());
                             }
-                        }else if(className.equals("short")){
+                        }else if(returnClassTypeName.equals("short")){
                             switch (mode) {
                                 case 0:
                                 case 1:
@@ -108,7 +112,7 @@ public class HookEntry implements IXposedHookLoadPackage, IXposedHookZygoteInit 
                                 case 2:
                                     returnObj = Short.parseShort(s.getModifyData());
                             }
-                        }else if(className.equals("int")){
+                        }else if(returnClassTypeName.equals("int")){
                             switch (mode) {
                                 case 0:
                                 case 1:
@@ -117,7 +121,7 @@ public class HookEntry implements IXposedHookLoadPackage, IXposedHookZygoteInit 
                                 case 2:
                                     returnObj = Integer.parseInt(s.getModifyData());
                             }
-                        }else if(className.equals("long")){
+                        }else if(returnClassTypeName.equals("long")){
                             switch (mode) {
                                 case 0:
                                 case 1:
@@ -126,25 +130,25 @@ public class HookEntry implements IXposedHookLoadPackage, IXposedHookZygoteInit 
                                 case 2:
                                     returnObj = Long.parseLong(s.getModifyData());
                             }
-                        }else if(className.equals("float")){
+                        }else if(returnClassTypeName.equals("float")){
                             switch (mode) {
                                 case 0:
                                 case 1:
-                                    returnObj = 0;
+                                    returnObj = 0.0f;
                                     break;
                                 case 2:
                                     returnObj = Float.parseFloat(s.getModifyData());
                             }
-                        }else if(className.equals("double")){
+                        }else if(returnClassTypeName.equals("double")){
                             switch (mode) {
                                 case 0:
                                 case 1:
-                                    returnObj = 0;
+                                    returnObj = 0.0d;
                                     break;
                                 case 2:
                                     returnObj = Double.parseDouble(s.getModifyData());
                             }
-                        }else if(className.equals("char")){
+                        }else if(returnClassTypeName.equals("char")){
                             switch (mode) {
                                 case 0:
                                 case 1:
@@ -153,7 +157,7 @@ public class HookEntry implements IXposedHookLoadPackage, IXposedHookZygoteInit 
                                 case 2:
                                     returnObj = s.getModifyData().charAt(0);
                             }
-                        }else if(className.equals("boolean")){
+                        }else if(returnClassTypeName.equals("boolean")){
                             switch (mode) {
                                 case 0:
                                 case 1:
@@ -162,7 +166,7 @@ public class HookEntry implements IXposedHookLoadPackage, IXposedHookZygoteInit 
                                 case 2:
                                     returnObj = (Integer.parseInt(s.getModifyData()) == 1);
                             }
-                        }else if(className.equals("String")){
+                        }else if(returnClassTypeName.equals("String")||returnClassTypeName.equals("java.lang.String")){
                             switch (mode) {
                                 case 0:
                                     returnObj = null;
@@ -174,7 +178,7 @@ public class HookEntry implements IXposedHookLoadPackage, IXposedHookZygoteInit 
                                     returnObj = s.getModifyData();
                             }
                         }else {
-                            Class clazz = Class.forName(className);
+                            Class clazz = Class.forName(returnClassTypeName);
                             switch (mode) {
                                 case 0:
                                     returnObj = null;
@@ -186,12 +190,16 @@ public class HookEntry implements IXposedHookLoadPackage, IXposedHookZygoteInit 
                                     returnObj = JSON.parse(s.getModifyData());
                             }
                         }
-                        XposedHelpers.findAndHookMethod(Class.forName(s.getClassName()),s.getFunctionName(),XC_MethodReplacement.returnConstant(returnObj));
+                        Class clazz = Class.forName(s.getClassName());
+                        String functionName = s.getFunctionName().substring(0,s.getFunctionName().length()-2);
+                        XposedHelpers.findAndHookMethod(clazz,functionName,XC_MethodReplacement.returnConstant(returnObj));
+                        XposedBridge.log(clazz.getName()+" "+functionName +"(): return "+returnObj.toString());
                     }
                 }
 
             }
         });
+
         XposedHelpers.findAndHookMethod(Activity.class, "onResume",new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
