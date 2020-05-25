@@ -14,23 +14,17 @@ import com.mean.androidprivacy.bean.AppConfigDao;
 import com.mean.androidprivacy.utils.AppConfigDBUtil;
 
 public class DBContentProvider extends ContentProvider {
-    //这里的AUTHORITY就是我们在AndroidManifest.xml中配置的authorities
+    //AUTHORITY为AndroidManifest.xml中配置的authorities
     private static final String AUTHORITY = "com.mean.androidprivacy.dbProvider";
-
-    //匹配成功后的匹配码
-    private static final int MATCH_CODE = 100;
-
+    //URI匹配码
+    private static final int MATCH_CODE = 123;
     private static UriMatcher uriMatcher;
-
-
     static {
-        //匹配不成功返回NO_MATCH(-1)
+        //匹配的默认情况（不成功）
         uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-
-        //添加我们需要匹配的uri
+        //此处需要匹配的uri
         uriMatcher.addURI(AUTHORITY,"appConfig", MATCH_CODE);
     }
-
     @Override
     public boolean onCreate() {
         return false;
