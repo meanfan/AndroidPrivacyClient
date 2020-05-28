@@ -50,10 +50,6 @@ public class HookEntry implements IXposedHookLoadPackage, IXposedHookZygoteInit 
             return;
         }
 
-        if(!packageName.equals("com.mean.locationleak")){
-            return;
-        }
-
         XposedBridge.log("load app:"+packageName);
 
         final Application[] currentApplication = new Application[1];

@@ -64,11 +64,11 @@ public class AppInfoUtil {
             if(isSystemApp){
                 continue;
             }
-            if(DebugUtil.isDebugMode(context)){
-                if(!packageInfo.packageName.equals("com.mean.locationleak")){
-                    continue;
-                }
-            }
+//            if(DebugUtil.isDebugMode(context)){
+//                if(!packageInfo.packageName.equals("com.mean.locationleak")){
+//                    continue;
+//                }
+//            }
             AppConfig appConfig = new AppConfig();
             if(initAppConfigByPackageInfo(context,appConfig,packageInfo)) {
                 AppConfig appConfigFromDB = AppConfigDBUtil.query(appConfig.getAppPackageName());

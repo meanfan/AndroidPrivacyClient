@@ -23,7 +23,6 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         MultiDex.install(this);
-        initFile();
         initGreenDAO();
     }
 
@@ -51,10 +50,4 @@ public class App extends Application {
             return appConfigs.get(appPackageName);
         }
     }
-
-    private void initFile(){
-        AppInfoUtil.copyAssetFile(this, "contacts2_fake.db",
-                                  getExternalFilesDir(null)+ File.separator+"fakedb", "contacts2_fake.db");
-    }
-
 }
