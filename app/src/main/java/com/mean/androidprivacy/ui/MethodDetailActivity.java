@@ -2,7 +2,6 @@ package com.mean.androidprivacy.ui;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.widget.NestedScrollView;
 
 import android.graphics.Color;
 import android.os.Bundle;
@@ -10,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.mean.androidprivacy.App;
@@ -27,6 +25,12 @@ import de.blox.graphview.ViewHolder;
 import de.blox.graphview.tree.BuchheimWalkerAlgorithm;
 import de.blox.graphview.tree.BuchheimWalkerConfiguration;
 
+/**
+ * @ClassName: MethodDetailActivity
+ * @Description: 配置项详情页面（未全部实现）
+ * @Author: MeanFan
+ * @Version: 0.1
+ */
 public class MethodDetailActivity extends AppCompatActivity {
     private AppConfig appConfig;
     private String methodDesc;

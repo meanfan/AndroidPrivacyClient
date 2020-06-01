@@ -4,6 +4,13 @@ import com.alibaba.fastjson.JSON;
 
 import lombok.Data;
 
+
+/**
+ * @ClassName: SourceConfig
+ * @Description: 对Source的配置类
+ * @Author: MeanFan
+ * @Version: 1.0
+ */
 @Data
 public class SourceConfig {
     private String className;

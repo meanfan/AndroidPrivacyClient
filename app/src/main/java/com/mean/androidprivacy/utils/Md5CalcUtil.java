@@ -2,28 +2,28 @@ package com.mean.androidprivacy.utils;
 
 import android.content.Context;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * @ProjectName: AndroidPrivacyServer
  * @ClassName: Md5CalcUtil
  * @Description: MD5计算工具
  * @Author: MeanFan
- * @Create: 2020-05-17 21:51
  * @Version: 1.0
- **/
-
+ */
 public class Md5CalcUtil {
     private static final char[] hexCode = "0123456789ABCDEF".toCharArray();
-    // 文件类取MD5
+
+    /**
+    * @Author: MeanFan
+    * @Description: 文件类取MD5
+    * @Param: [context, filePath]
+    * @return: java.lang.String
+    **/
     public static String calcMD5(Context context, String filePath){
         FileInputStream stream = null;
         try {
@@ -35,7 +35,13 @@ public class Md5CalcUtil {
         }
 
     }
-    // 输入流取MD5
+
+    /**
+    * @Author: MeanFan
+    * @Description: 输入流取MD5
+    * @Param: [stream]
+    * @return: java.lang.String
+    **/
     public static String calcMD5(InputStream stream) {
         try {
             MessageDigest digest = MessageDigest.getInstance("MD5");
@@ -54,6 +60,12 @@ public class Md5CalcUtil {
         }
     }
 
+    /**
+    * @Author: MeanFan
+    * @Description: 字节数组转String
+    * @Param: [data]
+    * @return: java.lang.String
+    **/
     public static String toHexString(byte[] data) {
         StringBuilder r = new StringBuilder(data.length * 2);
         for (byte b : data) {

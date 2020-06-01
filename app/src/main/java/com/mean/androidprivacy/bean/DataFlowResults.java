@@ -7,6 +7,13 @@ import java.util.List;
 
 import lombok.Data;
 
+
+/**
+ * @ClassName: DataFlowResults
+ * @Description: 对应分析结果XML的根节点DataFlowResults
+ * @Author: MeanFan
+ * @Version: 1.0
+ */
 @Data
 @XStreamAlias("DataFlowResults")
 public class DataFlowResults {
@@ -22,6 +29,12 @@ public class DataFlowResults {
         this.results.setResults(results);
     }
 
+    /**
+     * @ClassName: DataFlowResults.Results
+     * @Description: 对应分析结果XML中DataFlowResults节点下的Results节点
+     * @Author: MeanFan
+     * @Version: 1.0
+     */
     @Data
     @XStreamAlias("Results")
     public static class Results{

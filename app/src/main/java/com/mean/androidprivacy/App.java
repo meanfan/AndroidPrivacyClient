@@ -12,9 +12,14 @@ import com.mean.androidprivacy.bean.DaoSession;
 import com.mean.androidprivacy.utils.AppInfoUtil;
 import com.mean.androidprivacy.utils.GreenDaoContext;
 
-import java.io.File;
 import java.util.Map;
 
+/**
+ * @ClassName: App
+ * @Description: 重写唯一的Application类
+ * @Author: MeanFan
+ * @Version: 1.0
+ */
 public class App extends Application {
     public static Map<String,AppConfig> appConfigs;
     private static DaoSession daoSession;
@@ -27,6 +32,12 @@ public class App extends Application {
     }
 
 
+    /**
+    * @Author: MeanFan
+    * @Description: 初始化GreenDAO数据库
+    * @Param: []
+    * @return: void
+    **/
     private void initGreenDAO(){
         DaoMaster.DevOpenHelper helper= new DaoMaster.DevOpenHelper(new GreenDaoContext(this), "appConfigs.db", null );
         //DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, "appConfigs-db", null);
@@ -39,15 +50,13 @@ public class App extends Application {
         return daoSession;
     }
 
+    /**
+    * @Author: MeanFan
+    * @Description: 从系统初始化AppConfig信息
+    * @Param: [context]
+    * @return: void
+    **/
     public static void initAppConfig(Context context){
         App.appConfigs = AppInfoUtil.getAllUserAppConfigs(context);
-    }
-
-    public static AppConfig getAppConfig(Context context,String appPackageName){
-        if(appConfigs == null){
-            return null;
-        }else {
-            return appConfigs.get(appPackageName);
-        }
     }
 }

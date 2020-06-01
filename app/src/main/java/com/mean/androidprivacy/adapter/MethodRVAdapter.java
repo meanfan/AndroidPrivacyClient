@@ -24,6 +24,12 @@ import com.mean.androidprivacy.utils.AppConfigDBUtil;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @ClassName: MethodRVAdapter
+ * @Description: 配置界面配置项列表的RecyclerView适配器
+ * @Author: MeanFan
+ * @Version: 1.0
+ */
 public class MethodRVAdapter extends RecyclerView.Adapter<MethodRVAdapter.VH> {
     public static final String TAG = "MethodRVAdapter";
 
@@ -51,7 +57,13 @@ public class MethodRVAdapter extends RecyclerView.Adapter<MethodRVAdapter.VH> {
         updateData(config);
     }
 
-    //在notify前调用
+    /**
+    * @Author: MeanFan
+    * @Description: 在notify前调用，用于更新列表数据
+    * @Date: 10:54 2020/6/1 0001
+    * @Param: [config]
+    * @return: void
+    **/
     public void updateData(AppConfig config){
         this.appConfig = config;
         methodDesc = new ArrayList<>();
@@ -74,6 +86,12 @@ public class MethodRVAdapter extends RecyclerView.Adapter<MethodRVAdapter.VH> {
     }
 
 
+    /**
+     * @Author: MeanFan
+     * @Description: 初始化指定位置的列表项目
+     * @Param: [holder, position]
+     * @return: void
+     **/
     @Override
     public void onBindViewHolder(VH holder, final int position) {
         Activity activity = (Activity)holder.itemView.getContext();
@@ -106,18 +124,9 @@ public class MethodRVAdapter extends RecyclerView.Adapter<MethodRVAdapter.VH> {
             }
         });
         holder.itemView.setOnClickListener(v -> {
-            if(!appConfig.getIsEnabled()) {
-                Toast.makeText(v.getContext(),"请先启用",Toast.LENGTH_SHORT).show();
-                return;
-            }
             Intent intent = new Intent(v.getContext(), MethodDetailActivity.class);
-            intent.putExtra("appConfig", appConfig);
-            String[] methodDescs = new String[1];
-            boolean[] methodStatuses = new boolean[1];
-            methodDescs[0] = methodDesc.get(position);
-            methodStatuses[0] = methodStatus.get(position);
-            intent.putExtra("methodDescs",methodDescs);
-            intent.putExtra("methodStatuses",methodStatuses);
+            intent.putExtra("appPackageName", appConfig.getAppPackageName());
+            intent.putExtra("methodDesc",methodDesc.get(position));
             ((ConfigActivity)v.getContext()).startActivityForResult(intent, REQUEST_CODE_METHOD_DETAIL);
         });
     }

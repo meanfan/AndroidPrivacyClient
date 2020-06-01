@@ -1,4 +1,4 @@
-package com.mean.androidprivacy;
+package com.mean.androidprivacy.provider;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -9,10 +9,15 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.mean.androidprivacy.bean.AppConfig;
+import com.mean.androidprivacy.App;
 import com.mean.androidprivacy.bean.AppConfigDao;
-import com.mean.androidprivacy.utils.AppConfigDBUtil;
 
+/**
+ * @ClassName: DBContentProvider
+ * @Description: 配置文件内容提供者，仅支持读
+ * @Author: MeanFan
+ * @Version: 1.0
+ */
 public class DBContentProvider extends ContentProvider {
     //AUTHORITY为AndroidManifest.xml中配置的authorities
     private static final String AUTHORITY = "com.mean.androidprivacy.dbProvider";
@@ -30,14 +35,20 @@ public class DBContentProvider extends ContentProvider {
         return false;
     }
 
+    /**
+    * @Author: MeanFan
+    * @Description: 重写查询方法
+    * @Param: [uri, projection, selection, selectionArgs, sortOrder]
+    * @return: android.database.Cursor
+    **/
     @Nullable
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
-        int match = uriMatcher.match(uri);
+        int match = uriMatcher.match(uri);  //uri匹配
         if (match == MATCH_CODE){
             return App.getDaoSession().getAppConfigDao().queryBuilder()
                     .where(AppConfigDao.Properties.AppPackageName.eq(selection))
-                    .buildCursor().query();
+                    .buildCursor().query();  //返回Cursor指针
         }
         return null;
     }

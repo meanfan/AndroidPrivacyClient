@@ -7,6 +7,12 @@ import com.mean.androidprivacy.R;
 
 import de.blox.graphview.ViewHolder;
 
+/**
+ * @ClassName: MethodDetailActivity
+ * @Description: 配置项详情页面中的GraphView控件用到的ViewHolder
+ * @Author: MeanFan
+ * @Version: 0.1
+ */
 class SimpleViewHolder extends ViewHolder {
     TextView tv_statement;
 

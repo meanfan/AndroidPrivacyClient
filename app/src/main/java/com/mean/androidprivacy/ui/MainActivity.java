@@ -20,10 +20,15 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.Toast;
 
+/**
+ * @ClassName: MainActivity
+ * @Description: 主页面Activity
+ * @Author: MeanFan
+ * @Version: 1.0
+ */
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = "MainActivity";
     public static final int REQUEST_CODE_CONFIG = 0;
@@ -38,10 +43,16 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         initRefreshLayout();
         swipeRefreshLayout.setRefreshing(true);
-        forceRefresh();
-        checkXposed();
+        forceRefresh();  // 异步刷新列表
+        checkXposed();  // 检查Xposed状态
     }
 
+    /**
+    * @Author: MeanFan
+    * @Description: 初始化列表
+    * @Param: []
+    * @return: void
+    **/
     private void initRefreshLayout(){
         swipeRefreshLayout = findViewById(R.id.app_list_sfl);
         swipeRefreshLayout.setProgressViewOffset(true,50,200);
@@ -56,7 +67,12 @@ public class MainActivity extends AppCompatActivity {
         );
     }
 
-    // use thread
+    /**
+    * @Author: MeanFan
+    * @Description: 异步刷新列表
+    * @Param: []
+    * @return: void
+    **/
     private void forceRefresh(){
         new Thread(){
             @Override
@@ -76,43 +92,33 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-    }
-
+    /**
+    * @Author: MeanFan
+    * @Description: 菜单栏初始化（启用按钮）
+    * @Param: [menu]
+    * @return: boolean
+    **/
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
+        // 将menu中的项目添加到Action Bar
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        // Get the action view used in your toggleservice item
+
+        // 获取启用按钮项目
         final MenuItem toggleService = menu.findItem(R.id.action_toggle);
         final Switch actionView = (Switch) toggleService.getActionView();
+
+        // 根据启用状态设置按钮状态
         actionView.setChecked(isModuleActive());
-        actionView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                moduleToggle(isChecked);
-            }
-        });
+        actionView.setOnCheckedChangeListener((buttonView, isChecked) -> moduleToggle(isChecked));
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
+    /**
+    * @Author: MeanFan
+    * @Description: 检查Xposed是否正常
+    * @Param: []
+    * @return: void
+    **/
     void checkXposed(){
         if(isModuleActive()){
             Toast.makeText(this,"模块已启用",Toast.LENGTH_SHORT).show();
@@ -123,6 +129,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+    /**
+    * @Author: MeanFan
+    * @Description: 启用按钮开关事件
+    * @Param: [status]
+    * @return: void
+    **/
     void moduleToggle(boolean status){
         SharedPreferences prefs = new RemotePreferences(this, PreferenceUtils.AUTHORY, PreferenceUtils.MODULE_CONFIG_NAME);
         SharedPreferences.Editor mEditor  = prefs.edit();
@@ -130,10 +143,22 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "moduleToggle: "+status);
     }
 
+    /**
+    * @Author: MeanFan
+    * @Description: 默认返回false，若Xposed正常，则由HookEntry改为true
+    * @Param: []
+    * @return: boolean
+    **/
     private boolean isModuleActive(){
         return false;
     }
 
+    /**
+    * @Author: MeanFan
+    * @Description: 从配置页面返回后的列表状态更新
+    * @Param: [requestCode, resultCode, data]
+    * @return: void
+    **/
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if(requestCode == REQUEST_CODE_CONFIG){

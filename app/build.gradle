@@ -5,7 +5,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.mean.androidprivacy"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
@@ -66,5 +66,7 @@ dependencies {
     }
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'com.alibaba:fastjson:1.1.71.android'
+    // https://github.com/Team-Blox/GraphView
+    implementation 'de.blox:graphview:0.6.1'
 
 }

@@ -44,18 +44,9 @@
             android:name="xposedminversion"
             android:value="82" />
 
-<!--        <provider-->
-<!--            android:name="androidx.core.content.FileProvider"-->
-<!--            android:authorities="com.mean.androidprivacy.fileProvider"-->
-<!--            android:exported="false"-->
-<!--            android:grantUriPermissions="true">-->
-<!--            <meta-data-->
-<!--                android:name="android.support.FILE_PROVIDER_PATHS"-->
-<!--                android:resource="@xml/file_paths" />-->
-<!--        </provider>-->
         <provider
             android:authorities="com.mean.androidprivacy.dbProvider"
-            android:name=".DBContentProvider"
+            android:name=".provider.DBContentProvider"
             android:exported="true"/>
     </application>
 

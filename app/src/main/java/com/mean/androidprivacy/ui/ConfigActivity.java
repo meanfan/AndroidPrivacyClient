@@ -13,14 +13,12 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.mean.androidprivacy.App;
 import com.mean.androidprivacy.R;
 import com.mean.androidprivacy.adapter.MethodRVAdapter;
 import com.mean.androidprivacy.bean.AppConfig;
@@ -34,11 +32,19 @@ import com.mean.androidprivacy.utils.AppConfigDBUtil;
 import com.mean.androidprivacy.utils.AppInfoUtil;
 import com.mean.androidprivacy.utils.Md5CalcUtil;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * @ClassName: ConfigActivity
+ * @Description: 配置页面Activity
+ * @Author: MeanFan
+ * @Version: 1.0
+ */
 public class ConfigActivity extends AppCompatActivity implements AnalyzeResultCallBack{
     public static final String TAG = "ConfigActivity";
 
@@ -57,14 +63,14 @@ public class ConfigActivity extends AppCompatActivity implements AnalyzeResultCa
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if(requestCode == MethodRVAdapter.REQUEST_CODE_METHOD_CONFIG){
-            if(resultCode == RESULT_CANCELED && data!=null){
+            if(resultCode == RESULT_CANCELED && data!=null){  //取消配置配置项
                 int methodPosInSourceConfigs = data.getIntExtra("methodPosInSourceConfigs",-1);
 
                 if(methodPosInSourceConfigs>=0 &&  methodPosInSourceConfigs<appConfig.getSourceConfigs().size()){
                     appConfig.getSourceConfigs().get(methodPosInSourceConfigs).setEnable(false);
                     ((MethodRVAdapter)rv_permission_list.getAdapter()).updateData(appConfig);
                 }
-            }else if(resultCode == RESULT_OK && data!=null){
+            }else if(resultCode == RESULT_OK && data!=null){   //确认配置配置项
                 int mode = data.getIntExtra("mode",-1);
                 String modifyString = data.getStringExtra("modifyString");
                 int methodPosInSourceConfigs = data.getIntExtra("methodPosInSourceConfigs",-1);
@@ -74,11 +80,9 @@ public class ConfigActivity extends AppCompatActivity implements AnalyzeResultCa
                     sourceConfig.setEnable(true);
                     sourceConfig.setMode(mode);
                     sourceConfig.setModifyData(modifyString);
-                    AppConfigDBUtil.insert(appConfig);
+                    AppConfigDBUtil.insert(appConfig);  // 存入数据库
                 }
             }
-        }else if(requestCode == MethodRVAdapter.REQUEST_CODE_METHOD_CONFIG && data!=null){
-
         }
     }
 
@@ -86,6 +90,7 @@ public class ConfigActivity extends AppCompatActivity implements AnalyzeResultCa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_config);
+        // 初始化控件变量
         iv_icon = findViewById(R.id.iv_icon);
         tv_name = findViewById(R.id.tv_name);
         sw_enable = findViewById(R.id.sw_enable);
@@ -93,9 +98,11 @@ public class ConfigActivity extends AppCompatActivity implements AnalyzeResultCa
         tv_none_hint = findViewById(R.id.tv_none_hint);
         tv_wait_hint = findViewById(R.id.tv_wait_hint);
         fab_restore = findViewById(R.id.fab_restore);
+
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
+        // 从数据库初始化应用相关变量
         appPackageName = (String) getIntent().getSerializableExtra("appPackageName");
         AppConfig appConfigFromDB = AppConfigDBUtil.query(appPackageName);
         if(appConfigFromDB!=null){
@@ -117,7 +124,6 @@ public class ConfigActivity extends AppCompatActivity implements AnalyzeResultCa
         sw_enable.setText(appConfig.getIsEnabled()?"已启用":"未启用");
         sw_enable.setOnCheckedChangeListener((buttonView, isChecked) -> {
             buttonView.setText(isChecked?"已启用":"未启用");
-
             appConfig.setIsEnabled(isChecked);
             Intent intent = new Intent();
             int appListPos = getIntent().getIntExtra("appListPos",-1);
@@ -127,6 +133,7 @@ public class ConfigActivity extends AppCompatActivity implements AnalyzeResultCa
             AppConfigDBUtil.insert(appConfig);
         });
 
+        // 初始化配置项列表的控件可视状态
         try{
             if(appConfig.getDataFlowResults().getImplicitResults().size() == 0){
                 rv_permission_list.setVisibility(View.GONE);
@@ -138,6 +145,8 @@ public class ConfigActivity extends AppCompatActivity implements AnalyzeResultCa
         }
         rv_permission_list.setLayoutManager(new LinearLayoutManager(ConfigActivity.this));
         rv_permission_list.setAdapter(new MethodRVAdapter(appConfig));
+
+        // 设置重置按钮的交互
         AlertDialog.Builder builder = new AlertDialog.Builder(ConfigActivity.this);
         fab_restore.setOnClickListener(v -> {
             builder.setTitle("提示")
@@ -163,17 +172,33 @@ public class ConfigActivity extends AppCompatActivity implements AnalyzeResultCa
         });
     }
 
+
+    /**
+    * @Author: MeanFan
+    * @Description: 通过MD5接口获取到结果后的处理
+    * @Param: [xml]
+    * @return: void
+    **/
     @Override
     public void handleMD5Result(String xml) {
         if(xml==null || xml.length()==0){
+            // 若无法获取，则通过apk文件接口获取
             RemoteServer.getInstance().getResult(this,AppInfoUtil.getApkFile(ConfigActivity.this,appConfig.getAppPackageName()));
         }else {
             handleAnalyzeResult(xml);
         }
     }
 
+
+    /**
+    * @Author: MeanFan
+    * @Description: 通过apk文件接口获取到分析结果后的处理
+    * @Param: [xml]
+    * @return: void
+    **/
     @Override
     public void handleAnalyzeResult(String xml) {
+        // 检查xml是否正常
         if(xml==null || xml.length()==0){
             runOnUiThread(new Runnable() {
                 @Override
@@ -183,9 +208,54 @@ public class ConfigActivity extends AppCompatActivity implements AnalyzeResultCa
             });
             return;
         }
+
+        //将xml转为DataFlowResults
         DataFlowResultsConverter converter = new DataFlowResultsConverter();
         DataFlowResults dataFlowResults = converter.convertToEntityProperty(xml);
         appConfig.setDataFlowResults(dataFlowResults);
+
+        // 根据DataFlowResults生成SourceConfigs
+        if(dataFlowResults==null || dataFlowResults.getResults()==null || dataFlowResults.getImplicitResults() == null){
+            appConfig.setSourceConfigs(null);
+        }else {
+            List<SourceConfig> sourceConfigs = convertResult2SourceConfigs(dataFlowResults);
+            appConfig.setSourceConfigs(sourceConfigs);
+            AppConfigDBUtil.insert(appConfig);
+        }
+
+        // 更新界面
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(appConfig.getSourceConfigs()!=null && appConfig.getSourceConfigs().size()>0){
+                    rv_permission_list.setVisibility(View.VISIBLE);
+                    tv_none_hint.setVisibility(View.GONE);
+                    tv_wait_hint.setVisibility(View.GONE);
+                }else {
+                    rv_permission_list.setVisibility(View.GONE);
+                    tv_none_hint.setVisibility(View.VISIBLE);
+                    tv_wait_hint.setVisibility(View.GONE);
+                }
+
+                ((MethodRVAdapter)rv_permission_list.getAdapter()).updateData(appConfig);
+                sw_enable.setChecked(false);
+                if(dialog!=null && dialog.isShowing()){
+                    dialog.dismiss();
+                }
+                Toast.makeText(ConfigActivity.this,"获取配置成功",Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+
+    /**
+    * @Author: MeanFan
+    * @Description: 根据DataFlowResults生成List<SourceConfig>
+    * @Param: [dataFlowResults]
+    * @return: java.util.List<com.mean.androidprivacy.bean.SourceConfig>
+    **/
+    @NotNull
+    private List<SourceConfig> convertResult2SourceConfigs(DataFlowResults dataFlowResults) {
         List<SourceConfig> sourceConfigs = new ArrayList<>();
         Set<String> sourceConfigSet = new HashSet<>();
         for(Result result:dataFlowResults.getImplicitResults()){
@@ -211,29 +281,6 @@ public class ConfigActivity extends AppCompatActivity implements AnalyzeResultCa
             sourceConfig.setReturnType(returnType);
             sourceConfigs.add(sourceConfig);
         }
-        appConfig.setSourceConfigs(sourceConfigs);
-        AppConfigDBUtil.insert(appConfig);
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if(appConfig.getSourceConfigs().size()>0){
-                    rv_permission_list.setVisibility(View.VISIBLE);
-                    tv_none_hint.setVisibility(View.GONE);
-                    tv_wait_hint.setVisibility(View.GONE);
-                }else {
-                    rv_permission_list.setVisibility(View.GONE);
-                    tv_none_hint.setVisibility(View.VISIBLE);
-                    tv_wait_hint.setVisibility(View.GONE);
-                }
-
-                ((MethodRVAdapter)rv_permission_list.getAdapter()).updateData(appConfig);
-                sw_enable.setChecked(false);
-                if(dialog!=null && dialog.isShowing()){
-                    dialog.dismiss();
-                }
-                Toast.makeText(ConfigActivity.this,"获取配置成功",Toast.LENGTH_SHORT).show();
-            }
-        });
-
+        return sourceConfigs;
     }
 }

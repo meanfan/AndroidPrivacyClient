@@ -10,6 +10,12 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
 
 import org.greenrobot.greendao.converter.PropertyConverter;
 
+/**
+ * @ClassName: DataFlowResultsConverter
+ * @Description: 将DataFlowResults类与XML互转的类
+ * @Author: MeanFan
+ * @Version: 1.0
+ */
 public class DataFlowResultsConverter implements PropertyConverter<DataFlowResults,String> {
     private XStream xStream;
     public DataFlowResultsConverter() {
@@ -21,6 +27,12 @@ public class DataFlowResultsConverter implements PropertyConverter<DataFlowResul
         xStream.alias("AccessPath", AccessPath.class);
     }
 
+    /**
+    * @Author: MeanFan
+    * @Description: 将XML转为DataFlowResults类
+    * @Param: [databaseValue]
+    * @return: com.mean.androidprivacy.bean.DataFlowResults
+    **/
     @Override
     public DataFlowResults convertToEntityProperty(String databaseValue) {
         if (databaseValue == null) {
@@ -31,6 +43,12 @@ public class DataFlowResultsConverter implements PropertyConverter<DataFlowResul
         return  (DataFlowResults) xStream.fromXML(databaseValue);
     }
 
+    /**
+    * @Author: MeanFan
+    * @Description: 将DataFlowResults类转为XML
+    * @Param: [entityProperty]
+    * @return: java.lang.String
+    **/
     @Override
     public String convertToDatabaseValue(DataFlowResults entityProperty) {
         if (entityProperty == null) {

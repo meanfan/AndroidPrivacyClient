@@ -12,13 +12,17 @@ import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import lombok.Data;
 import org.greenrobot.greendao.annotation.Generated;
 
+
+/**
+ * @ClassName: AppConfig
+ * @Description: 应用程序的配置类
+ * @Author: MeanFan
+ * @Version: 1.0
+ */
 @Entity
 public class AppConfig implements Serializable {
     static  final long serialVersionUID = 1;

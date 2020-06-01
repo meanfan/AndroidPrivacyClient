@@ -20,6 +20,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @ClassName: AppRVAdapter
+ * @Description: 主界面应用程序列表的RecyclerView适配器
+ * @Author: MeanFan
+ * @Version: 1.0
+ */
 public class AppRVAdapter extends RecyclerView.Adapter<AppRVAdapter.VH> {
     //创建ViewHolder
     public static class VH extends RecyclerView.ViewHolder{
@@ -37,6 +43,7 @@ public class AppRVAdapter extends RecyclerView.Adapter<AppRVAdapter.VH> {
     private Map<String,AppConfig> appConfigMap;
     private List<String> appPackageNameList;
     private List<String> appNameList;
+
     public AppRVAdapter(Map<String,AppConfig> appConfigMap) {
         this.appConfigMap = appConfigMap;
         appPackageNameList = new ArrayList<>();
@@ -47,6 +54,12 @@ public class AppRVAdapter extends RecyclerView.Adapter<AppRVAdapter.VH> {
         }
     }
 
+    /**
+    * @Author: MeanFan
+    * @Description: 初始化指定位置的列表项目
+    * @Param: [holder, position]
+    * @return: void
+    **/
     @Override
     public void onBindViewHolder(VH holder, final int position) {
         //设置name
