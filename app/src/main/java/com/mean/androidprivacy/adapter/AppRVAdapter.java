@@ -5,8 +5,10 @@ import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -14,7 +16,10 @@ import com.mean.androidprivacy.ui.MainActivity;
 import com.mean.androidprivacy.ui.ConfigActivity;
 import com.mean.androidprivacy.R;
 import com.mean.androidprivacy.bean.AppConfig;
+import com.mean.androidprivacy.ui.NorootConfigActivity;
 import com.mean.androidprivacy.utils.AppInfoUtil;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,14 +76,21 @@ public class AppRVAdapter extends RecyclerView.Adapter<AppRVAdapter.VH> {
         if(icon != null) {
             holder.icon.setImageDrawable(icon);
         }
-        if(appConfigMap.get(appPackageName).getIsEnabled()){
+        if(MainActivity.isNorootMode){
+            holder.status.setText("");
+        }else if(appConfigMap.get(appPackageName).getIsEnabled()){
             holder.status.setText("启用");
         }else {
             holder.status.setText("未启用");
         }
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        holder.itemView.setOnClickListener(v -> {
+            if(!MainActivity.isEnable){
+                Toast.makeText(v.getContext(),"请先启用",Toast.LENGTH_SHORT).show();
+            }else if(MainActivity.isNorootMode){
+                Intent intent = new Intent(v.getContext(), NorootConfigActivity.class);
+                intent.putExtra("appPackageName",appPackageName);
+                v.getContext().startActivity(intent);
+            }else {
                 Intent intent = new Intent(v.getContext(), ConfigActivity.class);
                 intent.putExtra("appPackageName",appPackageName);
                 ((MainActivity)v.getContext()).startActivityForResult(intent,MainActivity.REQUEST_CODE_CONFIG);
@@ -91,10 +103,13 @@ public class AppRVAdapter extends RecyclerView.Adapter<AppRVAdapter.VH> {
         return appNameList.size();
     }
 
+    @NotNull
     @Override
     public VH onCreateViewHolder(ViewGroup parent, int viewType) {
         //LayoutInflater.from指定写法
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.app_list_rv_item, parent, false);
         return new VH(v);
     }
+
+
 }
