@@ -52,20 +52,33 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    implementation 'com.crossbowffs.remotepreferences:remotepreferences:0.7'
+
+    // https://github.com/rovo89/Xposed
     compileOnly 'de.robv.android.xposed:api:82'
     compileOnly 'de.robv.android.xposed:api:82:sources'
+
+    // https://github.com/greenrobot/greenDAO
     implementation 'org.greenrobot:greendao:3.2.2'
+
+    // https://github.com/rzwitserloot/lombok
     compileOnly 'org.projectlombok:lombok:1.18.12'
     annotationProcessor 'org.projectlombok:lombok:1.18.12'
+
+    // https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp
     implementation "com.squareup.okhttp3:okhttp:4.1.0"
+
     // https://mvnrepository.com/artifact/com.thoughtworks.xstream/xstream
     implementation('com.thoughtworks.xstream:xstream:1.4.12') {
         exclude group: 'xmlpull'
         exclude group: 'xpp3'
     }
+
+    // https://mvnrepository.com/artifact/androidx.multidex/multidex
     implementation 'androidx.multidex:multidex:2.0.1'
+
+    // https://github.com/alibaba/fastjson
     implementation 'com.alibaba:fastjson:1.1.71.android'
+
     // https://github.com/Team-Blox/GraphView
     implementation 'de.blox:graphview:0.6.1'
 
