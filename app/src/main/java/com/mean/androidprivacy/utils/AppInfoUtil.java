@@ -157,4 +157,19 @@ public class AppInfoUtil {
         }
         return appDir;
     }
+
+    /**
+    * @Author: MeanFan
+    * @Description: 检查应用是否已安装
+    * @Param: [appPackageName]
+    * @return: boolean
+    **/
+    public static boolean checkAPPInstalled(Context context,String appPackageName){
+        try {
+            context.getPackageManager().getApplicationInfo(appPackageName, 0);
+            return true;
+        }catch (PackageManager.NameNotFoundException e){
+            return false;
+        }
+    }
 }
