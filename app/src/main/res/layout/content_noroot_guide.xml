@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".ui.NorootGuideActivity"
+    tools:showIn="@layout/activity_noroot_guide">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:textSize="18dp"
+            android:text="1. 下载并安装VirtualXposed" />
+        <Button
+            android:id="@+id/btn_step1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="前往下载"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:textSize="18dp"
+            android:text="2. 在VirtualXposed中安装本应用" />
+        <Button
+            android:id="@+id/btn_step2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="一键安装" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:textSize="18dp"
+            android:text="3. 在VirtualXposed中启用本应用功能" />
+        <Button
+            android:id="@+id/btn_step3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="前往启用" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:textSize="18dp"
+            android:text="4. 在本应用主界面中安装和启动需要隐私保护的应用" />
+        <Button
+            android:id="@+id/btn_step4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="前往" />
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>
