@@ -1,10 +1,10 @@
 package com.mean.androidprivacy.ui;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
-import com.crossbowffs.remotepreferences.RemotePreferences;
 import com.mean.androidprivacy.App;
 import com.mean.androidprivacy.R;
 import com.mean.androidprivacy.adapter.AppRVAdapter;
@@ -34,6 +34,9 @@ public class MainActivity extends AppCompatActivity {
     public static final int REQUEST_CODE_CONFIG = 0;
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView recyclerView;
+    public static boolean isEnable = false;
+    public static boolean isNorootMode = false;
+    SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        prefs = getSharedPreferences(PreferenceUtils.MODULE_CONFIG_NAME, Context.MODE_PRIVATE);
         initRefreshLayout();
         swipeRefreshLayout.setRefreshing(true);
         forceRefresh();  // 异步刷新列表
@@ -105,11 +109,29 @@ public class MainActivity extends AppCompatActivity {
 
         // 获取启用按钮项目
         final MenuItem toggleService = menu.findItem(R.id.action_toggle);
-        final Switch actionView = (Switch) toggleService.getActionView();
+        final Switch enableSwitch = (Switch) toggleService.getActionView();
+
+        final MenuItem norootEnableItem = menu.findItem(R.id.action_noroot_enable);
+        norootEnableItem.setChecked(prefs.getBoolean(PreferenceUtils.NOROOT_MODE,false));
+
+        final MenuItem menuItem = menu.findItem(R.id.action_noroot_tip);
+        menuItem.setOnMenuItemClickListener(item -> {
+            startActivity(new Intent(MainActivity.this,NorootGuideActivity.class));
+            return false;
+        });
 
         // 根据启用状态设置按钮状态
-        actionView.setChecked(isModuleActive());
-        actionView.setOnCheckedChangeListener((buttonView, isChecked) -> moduleToggle(isChecked));
+        if(!isModuleActive()&&!norootEnableItem.isChecked()){
+            enableSwitch.setChecked(false);
+        }else {
+            enableSwitch.setChecked(prefs.getBoolean(PreferenceUtils.ENABLE,true));
+        }
+        isEnable = enableSwitch.isChecked();
+        enableSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            SharedPreferences.Editor mEditor  = prefs.edit();
+            isEnable = isChecked;
+            mEditor.putBoolean(PreferenceUtils.ENABLE, isChecked).apply();
+        });
         return true;
     }
 
@@ -119,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
     * @Param: []
     * @return: void
     **/
-    void checkXposed(){
+    private void checkXposed(){
         if(isModuleActive()){
             Toast.makeText(this,"模块已启用",Toast.LENGTH_SHORT).show();
             Log.d(TAG, "Module Enabled");
@@ -129,18 +151,18 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-    /**
-    * @Author: MeanFan
-    * @Description: 启用按钮开关事件
-    * @Param: [status]
-    * @return: void
-    **/
-    void moduleToggle(boolean status){
-        SharedPreferences prefs = new RemotePreferences(this, PreferenceUtils.AUTHORY, PreferenceUtils.MODULE_CONFIG_NAME);
-        SharedPreferences.Editor mEditor  = prefs.edit();
-        mEditor.putBoolean(PreferenceUtils.ENABLE, status).commit();
-        Log.d(TAG, "moduleToggle: "+status);
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == R.id.action_noroot_enable){
+            isNorootMode = !item.isChecked();
+            item.setChecked(isNorootMode);
+            SharedPreferences.Editor mEditor  = prefs.edit();
+            mEditor.putBoolean(PreferenceUtils.NOROOT_MODE, isNorootMode).apply();
+            forceRefresh();
+            return false;
+        }else {
+            return super.onOptionsItemSelected(item);
+        }
     }
 
     /**
