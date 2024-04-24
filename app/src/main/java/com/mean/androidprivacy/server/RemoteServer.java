@@ -26,7 +26,7 @@ import okhttp3.Response;
  */
 public class RemoteServer {
     public static final String TAG = "RemoteServer";
-    public static final String serverURL = "http://112.124.26.233:80";  //服务器地址/套接字
+    public static final String serverURL = "http://192.168.0.10:8081";  //服务器地址/套接字
     public static final String GET_RESULT_FORMAT = "/result?apkMd5=%s"; //获取已有分析结果接口的url格式
     public static final String POST_APK_FORMAT = "/upload";  //上传apk获取分析结果接口的url格式
 

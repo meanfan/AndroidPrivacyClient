@@ -58,7 +58,7 @@ dependencies {
     compileOnly 'de.robv.android.xposed:api:82:sources'
 
     // https://github.com/greenrobot/greenDAO
-    implementation 'org.greenrobot:greendao:3.2.2'
+    implementation 'org.greenrobot:greendao:3.3.0'
 
     // https://github.com/rzwitserloot/lombok
     compileOnly 'org.projectlombok:lombok:1.18.12'

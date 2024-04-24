@@ -230,6 +230,7 @@ public class HookEntry implements IXposedHookLoadPackage, IXposedHookZygoteInit 
                         XposedBridge.log(clazz.getName()+" "+functionName +"(): return "+returnObj.toString());
                     }
                 }
+                cursor.close();
 
             }
         });

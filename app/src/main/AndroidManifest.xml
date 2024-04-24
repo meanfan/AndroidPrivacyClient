@@ -15,13 +15,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".ui.NorootConfigActivity"></activity>
+        <activity
+            android:name=".ui.NorootGuideActivity"
+            android:label="@string/title_activity_noroot_guide"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ui.MethodConfigDialogActivity"
             android:label="@string/title_activity_method_config_dialog"
-            android:theme="@style/ActivityDialogStyle"></activity>
+            android:theme="@style/ActivityDialogStyle" />
         <activity android:name=".ui.MethodDetailActivity" />
-
-
         <activity android:name=".ui.ConfigActivity" />
         <activity
             android:name=".ui.MainActivity"
@@ -45,9 +48,9 @@
             android:value="82" />
 
         <provider
-            android:authorities="com.mean.androidprivacy.dbProvider"
             android:name=".provider.DBContentProvider"
-            android:exported="true"/>
+            android:authorities="com.mean.androidprivacy.dbProvider"
+            android:exported="true" />
     </application>
 
 </manifest>

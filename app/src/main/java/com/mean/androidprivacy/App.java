@@ -2,6 +2,7 @@ package com.mean.androidprivacy;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 
 import androidx.multidex.MultiDex;
@@ -22,6 +23,7 @@ import java.util.Map;
  */
 public class App extends Application {
     public static Map<String,AppConfig> appConfigs;
+    public static final boolean isVXP = (System.getProperty("vxp") != null);
     private static DaoSession daoSession;
 
     @Override
@@ -33,11 +35,11 @@ public class App extends Application {
 
 
     /**
-    * @Author: MeanFan
-    * @Description: 初始化GreenDAO数据库
-    * @Param: []
-    * @return: void
-    **/
+     * @Author: MeanFan
+     * @Description: 初始化GreenDAO数据库
+     * @Param: []
+     * @return: void
+     **/
     private void initGreenDAO(){
         DaoMaster.DevOpenHelper helper= new DaoMaster.DevOpenHelper(new GreenDaoContext(this), "appConfigs.db", null );
         //DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, "appConfigs-db", null);
